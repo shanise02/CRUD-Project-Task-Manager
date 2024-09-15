@@ -6,7 +6,7 @@ import Image from "next/image";
 import logo from "../../public/images/logo.png";
 import { Navigation } from "../components/DashboardNav";
 import { ThemeProvider } from "../components/theme-provider";
-import { ThemeToggle } from "../components/themetoggle";
+import { ThemeToggle } from "../components/Themetoggle";
 
 export default function DashboardLayout({ children }) {
   return (
