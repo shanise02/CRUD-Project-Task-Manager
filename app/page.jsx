@@ -1,3 +1,4 @@
+// Home page
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -31,7 +32,7 @@ export default function Home() {
         <CardFooter>
           <Link
             href={"/dashboard"}
-            className="w-full rounded-sm bg-green-500 p-3 text-white text-center"
+            className="w-full rounded-sm bg-green-500 hover:bg-green-600 p-3 text-white text-center"
           >
             Go to Dashboard
           </Link>

@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Plus, SquareCheck, Square, ListTodo } from "lucide-react";
+import { Plus, ListTodo, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export const navItems = [
@@ -9,16 +9,6 @@ export const navItems = [
     name: "My Tasks",
     href: "/dashboard",
     icon: ListTodo,
-  },
-  {
-    name: "Completed",
-    href: "/dashboard/completed",
-    icon: SquareCheck,
-  },
-  {
-    name: "Incomplete",
-    href: "/dashboard/incomplete",
-    icon: Square,
   },
   {
     name: "New Task",
@@ -35,14 +25,22 @@ export function Navigation() {
         <Link href={item.href} key={index}>
           <span
             className={cn(
-              "group flex items-center rounded-md px-3 py-2 mr-3 ml-3 font-medium hover:bg-accent hover:text-primary", pathname === item.href ? "bg-accent" : "bg-transparent"
+              "group flex items-center rounded-md px-3 py-2 mr-3 ml-3 font-medium hover:bg-accent hover:text-primary",
+              pathname === item.href ? "bg-accent" : "bg-transparent"
             )}
           >
-            {item.icon &&<item.icon className="w-5 h-5 mr-2 text-primary" />}
+            {item.icon && <item.icon className="w-5 h-5 mr-2 text-primary" />}
             <span>{item.name}</span>
           </span>
         </Link>
       ))}
+      <Link
+        href={"/"}
+        className="flex items-center justify-center gap-2 rounded-md px-3 py-3 m-3 bg-primary text-primary-foreground font-medium border hover:bg-accent hover:border-primary hover:text-primary"
+      >
+        <span>Logout</span>
+        <LogOut className="w-5 h-5 mr-2" />
+      </Link>
     </nav>
   );
 }

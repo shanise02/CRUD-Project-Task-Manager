@@ -1,63 +1,78 @@
-// Create  a new task
+// Update task a single task
 "use client";
-import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Link from "next/link";
 import axios from "axios";
 
-export default function CreateTask({ taskData }) {
-  const { toast } = useToast();
+export default function UpdateTask({ params }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("");
+  const { toast } = useToast();
   const router = useRouter();
+  const { id } = params;
 
-  // Handle task creation
+  // Fetch task data from the api
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchTask = async () => {
+      try {
+        const response = await axios.get(`/api/tasks?taskId=${id}`);
+        console.log(`Fetching data for task ID: ${id}`);
+        setTitle(response.data.title);
+        setDescription(response.data.description);
+        setStatus(response.data.status);
+      } catch (error) {
+        console.error("Error fetching task:", error);
+      }
+    };
+
+    fetchTask();
+  }, [id]);
+
+
+  // Handle task update
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/tasks", {
-        title: title,
-        description: description,
+      const response = await axios.put(`/api/tasks/${id}`, {
+        title,
+        description,
+        status,
       });
 
-      console.log(response);
-
+      // Redirect to the dashboard if the task is updated successfully
       if (response.status === 200) {
-        console.log(response.data);
+        router.push("/dashboard");
 
         // Success toast message
         toast({
-          title: "Task Created",
-          description: "Your task has been created successfully.",
+          title: "Task Updated",
+          description: "Your task has been updated successfully.",
         });
-
-        // Reset the form after creating a new task
-        setTitle("");
-        setDescription("");
-
-        // Reset the list of tasks after creating a new task
-        if (typeof taskData === "function") {
-          taskData(); // Call taskData if it's a function
-        } else {
-          console.error("taskData is not a function");
-        }
-
-        // Redirect to the dashboard if the task is created successfully
-        router.push("/dashboard");
       }
     } catch (error) {
-      console.error("Error creating task", error);
+      console.error("Error updating task:", error);
 
       // Error toast message
       toast({
         title: "Error",
-        description: "An error occurred while creating your task.",
+        description: "An error occurred while updating your task.",
         variant: "destructive",
       });
     }
@@ -66,7 +81,7 @@ export default function CreateTask({ taskData }) {
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
       <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center text-2xl">Create a new task</div>
+        <div className="flex items-center text-2xl">Edit Task</div>
       </div>
       <section>
         <Card className="w-full max-h-screen p-5 pt-8">
@@ -75,18 +90,30 @@ export default function CreateTask({ taskData }) {
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                type="text"
+                className="w-full"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full"
+                required
               />
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
+                className="w-full"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full"
               />
+
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue id="status" value={status} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                </SelectContent>
+              </Select>
             </CardContent>
             <CardFooter className="flex justify-end gap-3">
               <Link
