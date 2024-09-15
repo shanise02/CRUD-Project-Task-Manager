@@ -26,6 +26,8 @@ export default function Home() {
             height={180}
             className="mx-auto"
             priority
+            unoptimized={true}
+
           />
           <p className="text-center">Manage your tasks easily</p>
         </CardContent>

@@ -1,3 +1,4 @@
+// Next.js theme provider
 "use client";
 
 import * as React from "react";

@@ -6,12 +6,24 @@ const prisma = new PrismaClient();
 // Create a new task
 export async function POST(req) {
   try {
-    const { title, description } = await req.json();
+    const { title, description, priority="LOW" } = await req.json();
+
+    // Validate priority if it exists
+    const validPriorities = ["LOW", "MEDIUM", "HIGH"];
+    if (!validPriorities.includes(priority)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid priority. Must be LOW, MEDIUM, or HIGH" }),
+        { status: 400 }
+      );
+    }
+
+    // Create the task
     const newTask = await prisma.task.create({
       data: {
         title: title,
         description: description,
         status: "PENDING",
+        priority: priority, // Use the validated priority
       },
     });
     return new Response(JSON.stringify(newTask), { status: 200 });
@@ -22,6 +34,7 @@ export async function POST(req) {
     });
   }
 }
+
 // Read task/tasks
 export async function GET(req) {
   try {

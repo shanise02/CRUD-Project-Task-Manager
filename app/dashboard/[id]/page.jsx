@@ -1,4 +1,4 @@
-// Update task a single task
+// Update a single task
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter, CardContent } from "@/components/ui/card";
@@ -22,6 +22,7 @@ export default function UpdateTask({ params }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
+  const [priority, setPriority] = useState("");
   const { toast } = useToast();
   const router = useRouter();
   const { id } = params;
@@ -36,6 +37,7 @@ export default function UpdateTask({ params }) {
         console.log(`Fetching data for task ID: ${id}`);
         setTitle(response.data.title);
         setDescription(response.data.description);
+        setPriority(response.data.priority);
         setStatus(response.data.status);
       } catch (error) {
         console.error("Error fetching task:", error);
@@ -54,6 +56,7 @@ export default function UpdateTask({ params }) {
         title,
         description,
         status,
+        priority,
       });
 
       // Redirect to the dashboard if the task is updated successfully
@@ -102,18 +105,34 @@ export default function UpdateTask({ params }) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-
-              <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue id="status" value={status} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                  <SelectItem value="COMPLETED">Completed</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-cols gap-3">
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue id="status" value={status} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PENDING">Pending</SelectItem>
+                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                      <SelectItem value="COMPLETED">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="priority">Priority</Label>
+                  <Select value={priority} onValueChange={setPriority}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue id="priority" value={priority} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LOW">Low</SelectItem>
+                      <SelectItem value="MEDIUM">Medium</SelectItem>
+                      <SelectItem value="HIGH">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-3">
               <Link

@@ -19,7 +19,8 @@ model Task {
   id          Int       @id @default(autoincrement()) //Automatically incriment the id
   title       String    @db.VarChar(255) //Task Title
   description String?   @db.Text //Task Description
-  status      Status    @default(PENDING) //Task Status, with default value of "PENDING"
+  status      Status    @default(PENDING) //Task Status, with default value of PENDING
+  priority    Priority  @default(MEDIUM) //Task Priority, with default value of MEDIUM
   createdAt   DateTime  @default(now()) //Time for when the task was created
   updatedAt   DateTime  @updatedAt //Automatically update when the task is modified
 
@@ -30,4 +31,11 @@ enum Status {
   PENDING
   IN_PROGRESS
   COMPLETED
+}
+
+// Enum for the priority status
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
 }

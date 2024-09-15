@@ -10,6 +10,7 @@ import { ThemeToggle } from "../components/themetoggle";
 
 export default function DashboardLayout({ children }) {
   return (
+    // Next.js theme provider
     <ThemeProvider
       attribute="class"
       defaultTheme="system"

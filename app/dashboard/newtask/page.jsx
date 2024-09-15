@@ -1,4 +1,4 @@
-// Create  a new task
+// Create a new task page with form
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Link from "next/link";
 import axios from "axios";
 
@@ -15,6 +22,7 @@ export default function CreateTask({ taskData }) {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("");
   const router = useRouter();
 
   // Handle task creation
@@ -24,6 +32,7 @@ export default function CreateTask({ taskData }) {
       const response = await axios.post("/api/tasks", {
         title: title,
         description: description,
+        priority: priority,
       });
 
       console.log(response);
@@ -79,6 +88,7 @@ export default function CreateTask({ taskData }) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full"
+                required
               />
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -87,6 +97,17 @@ export default function CreateTask({ taskData }) {
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full"
               />
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue id="priority" value={priority} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="LOW">Low</SelectItem>
+                  <SelectItem value="MEDIUM">Medium</SelectItem>
+                  <SelectItem value="HIGH">High</SelectItem>
+                </SelectContent>
+              </Select>
             </CardContent>
             <CardFooter className="flex justify-end gap-3">
               <Link

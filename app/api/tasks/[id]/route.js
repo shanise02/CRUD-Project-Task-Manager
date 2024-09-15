@@ -14,8 +14,18 @@ export async function PUT(req, { params }) {
       });
     }
 
-    const { title, description, status } = await req.json();
+    const { title, description, status, priority } = await req.json();
 
+    // Validate priority if it exists
+    const validPriorities = ["LOW", "MEDIUM", "HIGH"];
+    if (priority && !validPriorities.includes(priority)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid priority. Must be LOW, MEDIUM, or HIGH" }),
+        { status: 400 }
+      );
+    }
+
+    // Update the task
     const updatedTask = await prisma.task.update({
       where: {
         id: parseInt(id, 10),
@@ -24,6 +34,7 @@ export async function PUT(req, { params }) {
         title,
         description,
         status,
+        priority,
       },
     });
 

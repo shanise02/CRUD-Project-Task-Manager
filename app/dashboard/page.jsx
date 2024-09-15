@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, SquarePen, Search } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import useSWR from "swr";
 import axios from "axios";
 import {
   AlertDialog,
@@ -20,24 +21,20 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+// Fetcher function for useSWR
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
 export default function DashboardPage() {
   const { toast } = useToast();
-  const [taskData, setTaskData] = useState([]); // Stores the list of tasks
   const [searchQuery, setSearchQuery] = useState(""); // Stores the search query
 
-  // Fetch all tasks from the api
-  const fetchTasks = async () => {
-    try {
-      const response = await axios.get("/api/tasks");
-      setTaskData(response.data);
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-    }
-  };
+  const { data: taskData, error, mutate } = useSWR("/api/tasks", fetcher);
 
-  useEffect(() => {
-    fetchTasks(); // Fetch tasks on component mount
-  }, []);
+  // If an error occurred, display an error message
+  if (error) return <div>Failed to load</div>;
+
+  // If taskData is undefined, display a loading message
+  if (!taskData) return <div>Loading...</div>;
 
   // Filter tasks based on search query
   const filteredTasks = taskData.filter((task) =>
@@ -48,7 +45,7 @@ export default function DashboardPage() {
   const handleDeleteTask = async (taskId) => {
     try {
       const response = await axios.delete(`/api/tasks/${taskId}`);
-      setTaskData(taskData.filter((task) => task.id !== taskId)); // Remove task from the list
+      mutate();
 
       if (response.status === 200) {
         console.log(response.data);
@@ -87,21 +84,30 @@ export default function DashboardPage() {
       });
 
       if (response.status === 200) {
-        setTaskData((prev) =>
-          prev.map((task) =>
-            task.id === taskId ? { ...task, status: newStatus } : task
-          )
-        );
+        mutate();
+
+        // Success toast message
+        toast({
+          title: "Task Status Updated",
+          description: "The task status was updated successfully.",
+        });
       }
     } catch (error) {
       console.error("Error updating task:", error);
+
+      // Error toast message
+      toast({
+        title: "Error",
+        description: "An error occurred while updating the task status.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-      <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b">
-        <div className="flex items-center text-2xl">My Tasks</div>
+      <div className="flex flex-col sm:flex-row justify-between p-4 border-b">
+        <div className="text-2xl">My Tasks</div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-x-4 gap-y-1">
           <div className="relative sm:mb-0">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-5 h-5 flex-shrink-0 mr-2" />
@@ -129,7 +135,7 @@ export default function DashboardPage() {
           filteredTasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-center gap-4 bg-background py-3 px-4 rounded-md"
+              className="flex flex-col sm:flex-row gap-4 bg-background py-3 px-4 rounded-md"
             >
               <div className="flex items-center gap-2">
                 <Checkbox
@@ -144,12 +150,27 @@ export default function DashboardPage() {
                     {task.title}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {task.description}
+                    {task.description.length > 80
+                      ? task.description.slice(0, 80) + "..."
+                      : task.description}
                   </p>
                 </div>
               </div>
               <div className="flex items-center ml-auto gap-1 space-x-2">
-                <p className="text-sm text-muted-foreground">
+                <p
+                  className={`text-sm bg-transparent p-2 rounded-md ${
+                    task.priority === "HIGH"
+                      ? "text-red-500 border border-red-500" // Red for high priority
+                      : task.priority === "MEDIUM"
+                      ? "text-yellow-500 border border-yellow-500" // Yellow for medium priority
+                      : "text-green-500 border border-green-500" // Green for low priority
+                  }`}
+                >
+                  {task.priority.charAt(0).toUpperCase() +
+                    task.priority.slice(1).toLowerCase()}{" "}
+                  Priority
+                </p>
+                <p className="text-sm bg-muted p-2 rounded-md">
                   {new Date(task.updatedAt).toLocaleDateString()}
                 </p>
                 <Link
@@ -187,7 +208,9 @@ export default function DashboardPage() {
             </div>
           ))
         ) : (
-          <div className="text-center">You do not have any tasks, create a new task.</div>
+          <div className="text-center">
+            You do not have any tasks, create a new task.
+          </div>
         )}
       </section>
     </main>

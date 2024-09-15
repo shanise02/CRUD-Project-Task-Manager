@@ -1,3 +1,4 @@
+// This is th theme toggle component, it will toggle between light and dark mode
 "use client";
 
 import * as React from "react";
